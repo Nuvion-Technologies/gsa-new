@@ -47,6 +47,7 @@ function Login() {
           password,
           recaptchaToken,
         });
+        console.log(response);
         if (response.status === 200) {
           // Encrypt the response data
           const { role, token, id, email, mobile, name } = response.data;
@@ -76,13 +77,24 @@ function Login() {
             "name",
             CryptoJS.AES.encrypt(name, key).toString()
           );
+          localStorage.setItem(
+            "userid",
+           response.data.id
+          );
 
           setTimeout(() => {
+            if (role === "Manager") {
+              navigate("/manager"); // Redirect to manager dashboard
+            }
+            else{
             navigate("/"); // Redirect on successful login
+            }
           }, 1500); // Simulated loading time
         }
-      } catch (error) {
-        if (error.response.status === 810) {
+      } catch (error) 
+      {
+        console.log(error)
+        if (error.response.data.message == "Account not verified. OTP has been sent to your email.") {
           setErrors({
             api: "Account Not Verified. Redirecting to Verify Page.",
           });
@@ -102,7 +114,18 @@ function Login() {
           setTimeout(() => {
             navigate("/verify"); // Redirect to verify page if account is not verified
           }, 1500);
-        } else {
+        } 
+        else if (error.response.data.message == 'User not found'){
+          setErrors({
+            api: "User not found. Redirecting to SignUp",
+          });
+
+          setTimeout(() => {
+            navigate("/signup"); // Redirect to verify page if account is not verified
+          }, 1500);
+        }
+        
+        else {
           setErrors({
             api: "Login failed. Please check your credentials or try again.",
           });

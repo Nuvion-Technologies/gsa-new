@@ -18,9 +18,8 @@ import ManagerDashboard from './Manager/ManagerDashboard';
 import CryptoJS from 'crypto-js';
 
 const AppRoutes = ({ setLoading }) => {
-  // const email = localStorage.getItem('email');
-    // const token = localStorage.getItem('token');
-    // const role = CryptoJS.AES.decrypt(localStorage.getItem('role'),import.meta.env.VITE_ENC_KEY).toString(CryptoJS.enc.Utf8);
+  const role = CryptoJS.AES.decrypt(localStorage.getItem('role'), import.meta.env.VITE_ENC_KEY).toString(CryptoJS.enc.Utf8);
+  console.log(role);
   return (
     <Routes>
       <Route path="/" element={<Home/>} />
@@ -36,7 +35,7 @@ const AppRoutes = ({ setLoading }) => {
       <Route path='/aboutus' element={<AboutUs />} />
       <Route path='/gallery' element={<Gallery />} />
       <Route path='/playground' element={<Ground />} />
-      <Route path="/manager" element={<ManagerDashboard/> } />
+      {role === 'Manager' ? <Route path="/manager" element={<ManagerDashboard/> } /> : <Navigate to="/login" />}
     </Routes>
   );
 };

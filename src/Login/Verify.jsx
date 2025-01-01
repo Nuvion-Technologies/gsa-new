@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import Cookies from "js-cookie";
 import axios from "axios";
+import CryptoJS from "crypto-js";
 
 function Verify() {
   const [otp, setOtp] = useState("");
@@ -9,6 +10,7 @@ function Verify() {
   const [success, setSuccess] = useState("");
   const [recaptchaToken, setRecaptchaToken] = useState("");
   const [loading, setLoading] = useState(false);
+  const key = import.meta.env.VITE_ENC_KEY;
   const captchaKey = import.meta.env.VITE_CAPTCHA_KEY;
   let API_URL = `http://${import.meta.env.VITE_IP}/api/auth/verify-otp`;
 if (Cookies.get('secret')) {
@@ -55,7 +57,7 @@ if (Cookies.get('secret')) {
           recaptchaToken,
       });
 
-
+  console.log(response)
       if (response.status === 200) {
         setSuccess("Verified successfully.");
         const { role, token, id, email, mobile, name } = response.data;
@@ -87,10 +89,19 @@ if (Cookies.get('secret')) {
                   );
         
         window.location.href = "/";
-      } else {
-        setErrors(data.message || "Verification failed. Please try again.");
+      } else if (response.message == "reCAPTCHA verification failed") {
+        setErrors(data.message || "Captcha Verification failed. Please try again.");
+        setRecaptchaToken("");
       }
-    } catch (err) {
+      else if (response.message == "Invalid or expired OTP") {
+        setErrors(data.message || "OTP Verification failed. Please try again.");
+        setRecaptchaToken("");
+        setOtp("");
+      }
+    } catch (err)
+    
+    {
+      console.log(err)
       setLoading(false);
       setErrors("Something went wrong. Please try again later.");
     }
